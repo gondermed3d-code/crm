@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barkod POS Sistemi</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Theme colors - can be changed dynamically */
+            --color-primary: #667eea;
+            --color-primary-dark: #764ba2;
+            --color-success: #48bb78;
+            --color-danger: #f56565;
+            --color-warning: #ffc107;
+
+            /* Background colors */
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --input-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark, #764ba2) 100%);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: white;
+        }
+
+        .header-title p {
+            opacity: 0.9;
+            font-size: 13px;
+            margin: 2px 0 0 0;
+            font-weight: 300;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 18px;
+        }
+
+        .header-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .header-icon-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--color-primary);
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info span:first-child {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-info span:last-child {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            padding: 16px 20px;
+            margin: 4px 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .nav-item span:first-child {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-item {
+            --nav-hover-color: rgba(102, 126, 234, 0.08);
+        }
+
+        .nav-item:hover {
+            background: var(--nav-hover-color, rgba(102, 126, 234, 0.08));
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--color-primary, #667eea) 0%, var(--color-primary-dark, #764ba2) 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            width: 4px;
+            height: 100%;
+            background: white;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #1a202c;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark, #5568d3) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--color-success) 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--color-danger) 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Tema Preset Butonları */
+        .theme-preset-btn {
+            border: none !important;
+        }
+
+        .theme-preset-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+        }
+
+        .theme-preset-btn:active {
+            transform: translateY(-2px) scale(1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table th,
+        table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table th {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--color-primary, #667eea);
+        }
+
+        table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        table tbody tr:hover {
+            background: #f7fafc;
+            transform: scale(1.002);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        table tbody tr:nth-child(even):hover {
+            background: #f0f4f8;
+        }
+
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: 480px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #scanner-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 60%;
+            border: 2px solid #48bb78;
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: right;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-in-stock {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-low-stock {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .status-out-of-stock {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+            color: white !important; /* Sayılar her zaman beyaz */
+        }
+
+        .stats-card p {
+            opacity: 0.9;
+            color: white !important; /* Açıklamalar da beyaz */
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            /* ÖNEMLİ: Arka planı tamamen engelle */
+            pointer-events: all;
+            cursor: default;
+        }
+
+        .modal.active {
+            display: flex;
+            /* Modal açıkken kesinlikle arka plan tıklanamaz */
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+            /* Modal içeriği tıklanabilir */
+            pointer-events: all;
+            cursor: auto;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        /* Settings Tabs */
+        .settings-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .settings-tab:hover {
+            color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .settings-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .settings-tab-content {
+            animation: fadeIn 0.3s;
+        }
+
+        /* CRM Customer Tabs */
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .customer-tab {
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+            border-left: 5px solid #48bb78;
+        }
+
+        .notification.success {
+            border-left-color: #48bb78;
+        }
+
+        .notification.error {
+            border-left-color: #f56565;
+        }
+
+        .notification h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .notification .close-notification {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+        }
+
+        .notification .close-notification:hover {
+            color: #333;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .notification.hiding {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        .print-quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .print-quantity input {
+            width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+                </div>
+                <div class="header-title">
+                    <h1>Barkod POS</h1>
+                    <p>Satış Noktası & Stok Yönetimi</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-profile" onclick="showUserMenu()">
+                    <div class="user-avatar">KA</div>
+                    <div class="user-info">
+                        <span>Kullanıcı</span>
+                        <span>Yönetici</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 12px; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="nav-item active" data-page="dashboard">
+                    <span>📈</span> Ana Sayfa
+                </div>
+                <div class="nav-item" data-page="pos">
+                    <span>🛒</span> Satış
+                </div>
+                <div class="nav-item" data-page="products">
+                    <span>📦</span> Ürünler
+                </div>
+                <div class="nav-item" data-page="customers">
+                    <span>👥</span> Müşteriler
+                </div>
+                <div class="nav-item" onclick="toggleCrmSubmenu(event)">
+                    <span>💼</span> CRM <span style="float: right;">▼</span>
+                </div>
+                <div id="crm-submenu" style="display: none; padding-left: 20px; background: rgba(0,0,0,0.1);">
+                    <div class="nav-item" data-page="crm" data-view="list">
+                        <span>📋</span> Müşteri Listesi
+                    </div>
+                    <div class="nav-item" data-page="crm" data-view="dashboard">
+                        <span>📊</span> Dashboard
+                    </div>
+                    <div class="nav-item" data-page="crm" data-view="bulk-message">
+                        <span>📤</span> Toplu Mesaj
+                    </div>
+                </div>
+                <div class="nav-item" data-page="barcode-generator">
+                    <span>🏷️</span> Barkod Oluştur
+                </div>
+                <div class="nav-item" data-page="scanner">
+                    <span>📷</span> Barkod Okut <span style="color: #ff4444; font-size: 0.65em; font-weight: bold;">BETA</span>
+                </div>
+                <div class="nav-item" data-page="sales">
+                    <span>📊</span> Satış Geçmişi
+                </div>
+                <div class="nav-item" data-page="stock">
+                    <span>📋</span> Stok Takibi
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <span>📈</span> Raporlar
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span>⚙️</span> Ayarlar
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="dashboard-page">
+                    <h1 style="margin-bottom: 20px;">Ana Sayfa</h1>
+
+                    <div class="grid-2">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <h3 id="stats-total-products">0</h3>
+                            <p>Toplam Ürün</p>
+                        </div>
+                        <div class="stats-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                            <h3 id="stats-total-sales">0</h3>
+                            <p>Toplam Satış</p>
+                        </div>
+                        <div class="stats-card" style="background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);">
+                            <h3 id="stats-low-stock">0</h3>
+                            <p>Düşük Stok Uyarısı</p>
+                        </div>
+                        <div class="stats-card" style="background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);">
+                            <h3 id="stats-revenue">0 ₺</h3>
+                            <p>Toplam Ciro</p>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h2>Hızlı İşlemler</h2>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="document.querySelector('[data-page=pos]').click()">Yeni Satış</button>
+                            <button class="btn btn-success" onclick="document.querySelector('[data-page=products]').click(); showAddProductModal();">Ürün Ekle</button>
+                            <button class="btn btn-secondary" onclick="document.querySelector('[data-page=barcode-generator]').click()">Barkod Oluştur</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Son Satışlar</h2>
+                        <table id="dashboard-sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Ürün Sayısı</th>
+                                    <th>Toplam</th>
+                                    <th>Ödeme</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- POS Page -->
+                <div class="page" id="pos-page">
+                    <div class="grid-2">
+                        <div>
+                            <div class="card">
+                                <h2>🔍 Hızlı Ürün Ara</h2>
+
+                                <!-- Quick Search by Name -->
+                                <div class="form-group">
+                                    <label>Ürün Adı ile Ara (Canlı Arama)</label>
+                                    <input type="text" id="quick-search-input" placeholder="Örn: Coca, Çikolata, Ekmek..."
+                                           oninput="quickSearchProducts()" autocomplete="off">
+                                </div>
+
+                                <!-- Search Results Dropdown -->
+                                <div id="search-results" style="display: none; max-height: 300px; overflow-y: auto;
+                                     background: white; border: 2px solid #667eea; border-radius: 5px; margin-bottom: 20px;
+                                     pointer-events: none; position: relative; z-index: 10;">
+                                </div>
+
+                                <div style="border-top: 2px dashed #ddd; margin: 20px 0; padding-top: 20px;">
+                                    <h3 style="margin-bottom: 10px;">Veya Barkod Okutun <span style="color: #ff4444; font-size: 0.7em;">(BETA)</span></h3>
+                                    <div class="form-group">
+                                        <input type="text" id="pos-barcode-input" placeholder="Barkod okutun veya girin">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="searchProductByBarcode()">Barkod ile Ara</button>
+                                </div>
+                            </div>
+
+                            <div class="card" id="pos-cart">
+                                <h2>Sepet</h2>
+
+                                <!-- Müşteri Seçimi -->
+                                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>Müşteri:</strong>
+                                            <span id="selected-customer-name" style="color: #667eea; margin-left: 5px;">Misafir (Seçilmedi)</span>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-primary btn-sm" onclick="showSelectCustomerModal()">
+                                                👤 Müşteri Seç
+                                            </button>
+                                            <button class="btn btn-secondary btn-sm" id="clear-customer-btn" onclick="clearSelectedCustomer()" style="display: none;">
+                                                ✖
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small style="color: #666; font-size: 11px;">Müşteri seçilmezse "Misafir" satış olarak kaydedilir</small>
+                                </div>
+
+                                <div id="cart-items"></div>
+                                <div class="cart-total">
+                                    Toplam: <span id="cart-total">0.00</span> ₺
+                                </div>
+                                <div class="action-buttons" style="margin-top: 20px;">
+                                    <button class="btn btn-success" onclick="completeSale()">Satışı Tamamla</button>
+                                    <button class="btn btn-danger" onclick="clearCart()">Sepeti Temizle</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="card">
+                                <h2>Son Eklenen Ürün</h2>
+                                <div id="last-product-info">
+                                    <p style="color: #999;">Henüz ürün eklenmedi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div class="page" id="products-page">
+                    <div class="card">
+                        <h2>Ürün Yönetimi</h2>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                            <button class="btn btn-primary" onclick="showAddProductModal()">+ Yeni Ürün Ekle</button>
+                            <button class="btn btn-success" onclick="exportProductsToExcel()" style="background: #28a745;">📊 Excel İndir</button>
+                            <button class="btn btn-danger" onclick="exportProductsToPDF()" style="background: #dc3545;">📄 PDF İndir</button>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <table id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Barkod</th>
+                                        <th>Ürün Adı</th>
+                                        <th>Fiyat</th>
+                                        <th>Stok</th>
+                                        <th>Kategori</th>
+                                        <th>KDV</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barcode Generator Page -->
+                <div class="page" id="barcode-generator-page">
+                    <div class="card">
+                        <h2>Barkod Oluştur</h2>
+                        <p style="color: #666; margin-bottom: 20px;">Ürünleriniz için barkod oluşturun, yazdırın veya kaydedin.</p>
+
+                        <div class="grid-2">
+                            <div>
+                                <div class="form-group">
+                                    <label>Ürün Seçin</label>
+                                    <select id="barcode-product-select" onchange="selectProductForBarcode()">
+                                        <option value="">Ürün seçin...</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Barkod</label>
+                                    <input type="text" id="barcode-input" placeholder="Barkod numarası" onkeyup="generateBarcodePreview()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Ürün Adı (Barkod Altında Gösterilecek)</label>
+                                    <input type="text" id="barcode-text" placeholder="Ürün adı" onkeyup="generateBarcodePreview()">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Barkod Formatı</label>
+                                    <select id="barcode-format" onchange="generateBarcodePreview()">
+                                        <option value="CODE128">CODE128 (Genel Kullanım - Önerilen)</option>
+                                        <option value="CODE39">CODE39 (Alfanumerik)</option>
+                                    </select>
+                                    <small style="color: #999;">Not: EAN13, EAN8 ve UPC için geçerli barkod numarası gerekir</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Yazdırılacak Adet</label>
+                                    <input type="number" id="barcode-quantity" value="1" min="1" max="100">
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary" onclick="generateBarcodePreview()">Önizleme Oluştur</button>
+                                    <button class="btn btn-success" onclick="downloadBarcode()">İndir (PNG)</button>
+                                    <button class="btn btn-secondary" onclick="printBarcode()">Yazdır</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="margin-bottom: 15px;">Barkod Önizleme</h3>
+                                <div style="background: white; padding: 20px; border: 2px dashed #ddd; border-radius: 8px; text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                    <div id="barcode-preview">
+                                        <p style="color: #999;">Barkod burada görünecek</p>
+                                    </div>
+                                </div>
+                                <canvas id="barcode-canvas" style="display: none;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Toplu Barkod Oluştur</h2>
+                        <p style="color: #666; margin-bottom: 15px;">Tüm ürünler için barkodları toplu olarak oluşturun ve yazdırın.</p>
+                        <button class="btn btn-primary" onclick="generateAllBarcodes()">Tüm Ürünler İçin Barkod Oluştur</button>
+                        <div id="bulk-barcode-preview" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- Scanner Page -->
+                <div class="page" id="scanner-page">
+                    <div class="card">
+                        <h2>Kamera ile Barkod Okut</h2>
+                        <div class="scanner-container">
+                            <video id="scanner-video" autoplay playsinline></video>
+                            <div class="scanner-overlay"></div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="startCamera()">Kamerayı Başlat</button>
+                            <button class="btn btn-danger" onclick="stopCamera()">Kamerayı Durdur</button>
+                        </div>
+                        <div id="scanner-result" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- Sales Page -->
+                <div class="page" id="sales-page">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2 style="margin: 0;">Satış Geçmişi</h2>
+                            <button class="btn btn-danger" onclick="clearSalesHistory()" style="padding: 10px 20px;">
+                                🗑️ Satış Geçmişini Temizle
+                            </button>
+                        </div>
+                        <table id="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Ürün Sayısı</th>
+                                    <th>Toplam</th>
+                                    <th>Ödeme</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stock Page -->
+                <div class="page" id="stock-page">
+                    <div class="card">
+                        <h2>Stok Durumu</h2>
+                        <table id="stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Barkod</th>
+                                    <th>Mevcut Stok</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Customers Page -->
+                <div class="page" id="customers-page">
+                    <div class="card">
+                        <h2>Müşteri Yönetimi</h2>
+                        <button class="btn btn-primary" onclick="showAddCustomerModal()">+ Yeni Müşteri Ekle</button>
+                        <div style="margin-top: 20px;">
+                            <table id="customers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Müşteri Adı</th>
+                                        <th>Telefon</th>
+                                        <th>Email</th>
+                                        <th>Veresiye</th>
+                                        <th>Puan</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div class="page" id="reports-page">
+                    <div class="card">
+                        <h2>📊 Gelişmiş Raporlar</h2>
+
+                        <!-- Date Range Filter -->
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;">📅 Tarih Aralığı Seçin</h3>
+                            <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Başlangıç Tarihi</label>
+                                    <input type="date" id="report-start-date" style="padding: 10px; border: 2px solid #667eea; border-radius: 5px; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Bitiş Tarihi</label>
+                                    <input type="date" id="report-end-date" style="padding: 10px; border: 2px solid #667eea; border-radius: 5px; font-size: 14px;">
+                                </div>
+                                <button onclick="applyReportDateFilter()" style="padding: 10px 25px; background: #667eea; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">Filtrele</button>
+                                <button onclick="resetReportDateFilter()" style="padding: 10px 25px; background: #6c757d; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">Sıfırla</button>
+                            </div>
+                        </div>
+
+                        <!-- Period Selector -->
+                        <div style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
+                            <button class="period-btn active" onclick="setReportPeriod('daily')" data-period="daily" style="padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;">Günlük</button>
+                            <button class="period-btn" onclick="setReportPeriod('weekly')" data-period="weekly" style="padding: 12px 25px; background: #e0e7ff; color: #667eea; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;">Haftalık</button>
+                            <button class="period-btn" onclick="setReportPeriod('monthly')" data-period="monthly" style="padding: 12px 25px; background: #e0e7ff; color: #667eea; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;">Aylık</button>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="grid-2" style="margin-bottom: 30px;">
+                            <div class="stats-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <h3 id="report-today-sales">0 ₺</h3>
+                                <p>Bugünkü Satışlar</p>
+                            </div>
+                            <div class="stats-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                                <h3 id="report-month-sales">0 ₺</h3>
+                                <p>Bu Ayki Satışlar</p>
+                            </div>
+                            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <h3 id="report-total-sales">0 ₺</h3>
+                                <p>Toplam Satışlar</p>
+                            </div>
+                            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <h3 id="report-average-sale">0 ₺</h3>
+                                <p>Ortalama Satış</p>
+                            </div>
+                        </div>
+
+                        <!-- Sales Chart -->
+                        <div class="card" style="margin-bottom: 30px; padding: 25px;">
+                            <h3 style="margin-bottom: 20px;">📈 Satış Trendi</h3>
+                            <canvas id="sales-chart" style="max-height: 400px;"></canvas>
+                        </div>
+
+                        <!-- Top Products -->
+                        <div class="card" style="margin-bottom: 30px;">
+                            <h3>🏆 En Çok Satan Ürünler</h3>
+                            <table id="top-products-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Ürün</th>
+                                        <th>Satış Miktarı</th>
+                                        <th>Toplam Ciro</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Category Breakdown Chart -->
+                        <div class="grid-2">
+                            <div class="card" style="padding: 25px;">
+                                <h3 style="margin-bottom: 20px;">🍰 Satış Dağılımı</h3>
+                                <canvas id="category-chart" style="max-height: 300px;"></canvas>
+                            </div>
+                            <div class="card" style="padding: 25px;">
+                                <h3 style="margin-bottom: 20px;">💰 Gelir Özeti</h3>
+                                <div style="padding: 20px;">
+                                    <p style="margin: 15px 0; display: flex; justify-content: space-between; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                                        <span style="font-weight: bold;">Toplam Ciro:</span>
+                                        <span id="summary-total-revenue" style="color: #667eea; font-weight: bold;">0 ₺</span>
+                                    </p>
+                                    <p style="margin: 15px 0; display: flex; justify-content: space-between; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                                        <span style="font-weight: bold;">Toplam KDV:</span>
+                                        <span id="summary-total-vat" style="color: #28a745; font-weight: bold;">0 ₺</span>
+                                    </p>
+                                    <p style="margin: 15px 0; display: flex; justify-content: space-between; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                                        <span style="font-weight: bold;">Satış Sayısı:</span>
+                                        <span id="summary-total-count" style="color: #ffc107; font-weight: bold;">0</span>
+                                    </p>
+                                    <p style="margin: 15px 0; display: flex; justify-content: space-between;">
+                                        <span style="font-weight: bold;">Ortalama Sepet:</span>
+                                        <span id="summary-avg-basket" style="color: #f5576c; font-weight: bold;">0 ₺</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRM Page -->
+                <div class="page" id="crm-page">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2>💼 CRM - Müşteri İlişkileri Yönetimi</h2>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-primary" onclick="showCrmDashboard()">
+                                    📊 Dashboard
+                                </button>
+                                <button class="btn btn-success" onclick="showBulkMessageModal()">
+                                    📤 Toplu Mesaj
+                                </button>
+                                <button class="btn btn-primary" onclick="showAddCustomerModal()">
+                                    + Yeni Müşteri
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CRM List View -->
+                        <div id="crm-list-view">
+                            <div style="margin-bottom: 15px;">
+                                <input type="text" id="crm-search-input" placeholder="🔍 Müşteri ara..."
+                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            </div>
+
+                            <div style="overflow-x: auto;">
+                                <table id="crm-customers-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Müşteri Adı</th>
+                                            <th>Telefon</th>
+                                            <th>Email</th>
+                                            <th>Alışveriş Sayısı</th>
+                                            <th>Toplam Harcama</th>
+                                            <th>Son Alışveriş</th>
+                                            <th>Sadakat Puanı</th>
+                                            <th>Segment</th>
+                                            <th>İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dinamik olarak doldurulacak -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- CRM Dashboard View (Hidden by default) -->
+                        <div id="crm-dashboard-view" style="display: none;">
+                            <button class="btn btn-secondary" onclick="showCrmList()" style="margin-bottom: 20px;">
+                                ← Listeye Dön
+                            </button>
+
+                            <div class="grid-2" style="margin-bottom: 20px;">
+                                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                    <h3>🏆 En Çok Harcayan</h3>
+                                    <div id="top-spenders-list"></div>
+                                </div>
+                                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                                    <h3>⭐ En Sadık Müşteriler</h3>
+                                    <div id="loyal-customers-list"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid-2" style="margin-bottom: 20px;">
+                                <div class="card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                                    <h3>⚠️ Risk Altındaki Müşteriler</h3>
+                                    <div id="risk-customers-list"></div>
+                                </div>
+                                <div class="card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white;">
+                                    <h3>🆕 Yeni Müşteriler</h3>
+                                    <div id="new-customers-list"></div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h3>📊 Müşteri Segmentasyon Dağılımı</h3>
+                                <div id="segment-distribution"></div>
+                            </div>
+                        </div>
+
+                        <!-- CRM Bulk Message View (Hidden by default) -->
+                        <div id="crm-bulk-message-view" style="display: none;">
+                            <button class="btn btn-secondary" onclick="showCrmList()" style="margin-bottom: 20px;">
+                                ← Listeye Dön
+                            </button>
+
+                            <div class="grid-2" style="gap: 20px;">
+                                <!-- Left: Customer Selection -->
+                                <div class="card">
+                                    <h3>📋 Kime Gönderilsin?</h3>
+                                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                                        <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="radio" name="bulk-target" value="all" checked style="margin-right: 10px; width: 18px; height: 18px;">
+                                            <div>
+                                                <strong>Tüm Müşteriler</strong>
+                                                <div style="font-size: 12px; color: #666;" id="all-count">0 kişi</div>
+                                            </div>
+                                        </label>
+                                        <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="radio" name="bulk-target" value="vip" style="margin-right: 10px; width: 18px; height: 18px;">
+                                            <div>
+                                                <strong>🌟 VIP Müşteriler</strong>
+                                                <div style="font-size: 12px; color: #666;" id="vip-count">0 kişi</div>
+                                            </div>
+                                        </label>
+                                        <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="radio" name="bulk-target" value="regular" style="margin-right: 10px; width: 18px; height: 18px;">
+                                            <div>
+                                                <strong>💚 Düzenli Müşteriler</strong>
+                                                <div style="font-size: 12px; color: #666;" id="regular-count">0 kişi</div>
+                                            </div>
+                                        </label>
+                                        <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="radio" name="bulk-target" value="new" style="margin-right: 10px; width: 18px; height: 18px;">
+                                            <div>
+                                                <strong>🆕 Yeni Müşteriler</strong>
+                                                <div style="font-size: 12px; color: #666;" id="new-count">0 kişi</div>
+                                            </div>
+                                        </label>
+                                        <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                            <input type="radio" name="bulk-target" value="risk" style="margin-right: 10px; width: 18px; height: 18px;">
+                                            <div>
+                                                <strong>⚠️ Risk Altındaki Müşteriler</strong>
+                                                <div style="font-size: 12px; color: #666;" id="risk-count">0 kişi</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Right: Message Settings -->
+                                <div class="card">
+                                    <h3>✉️ Mesaj Ayarları</h3>
+                                    <form id="bulk-message-form" onsubmit="sendBulkMessages(event)" style="margin-top: 15px;">
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mesaj Şablonu:</label>
+                                            <select id="bulk-template-select" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                                <option value="">Şablon seçin...</option>
+                                            </select>
+                                        </div>
+
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mesaj Tipi:</label>
+                                            <div style="display: flex; gap: 15px;">
+                                                <label style="display: flex; align-items: center;">
+                                                    <input type="checkbox" name="message-type" value="whatsapp" checked style="margin-right: 8px; width: 18px; height: 18px;">
+                                                    📱 WhatsApp
+                                                </label>
+                                                <label style="display: flex; align-items: center;">
+                                                    <input type="checkbox" name="message-type" value="email" style="margin-right: 8px; width: 18px; height: 18px;">
+                                                    📧 Email
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-bottom: 20px;">
+                                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mesaj Önizleme:</label>
+                                            <div id="bulk-message-preview" style="padding: 15px; background: #f8f9fa; border-radius: 5px; min-height: 100px; border-left: 4px solid #667eea; white-space: pre-wrap;">
+                                                Şablon seçilmedi...
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 16px;">
+                                            📤 Mesaj Gönder
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Detail View (Hidden by default) -->
+                        <div id="crm-detail-view" style="display: none;">
+                            <button class="btn btn-secondary" onclick="showCrmList()" style="margin-bottom: 20px;">
+                                ← Listeye Dön
+                            </button>
+
+                            <div class="grid-2">
+                                <!-- Left: Customer Info -->
+                                <div class="card">
+                                    <h3>Müşteri Bilgileri</h3>
+                                    <div id="customer-detail-info"></div>
+                                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                        <button class="btn btn-success" id="whatsapp-btn" onclick="openWhatsApp()">
+                                            📱 WhatsApp
+                                        </button>
+                                        <button class="btn btn-primary" onclick="showSendEmailModal()">
+                                            📧 Email Gönder
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Right: Tabs -->
+                                <div class="card">
+                                    <div style="display: flex; gap: 10px; border-bottom: 2px solid #ddd; margin-bottom: 15px;">
+                                        <button class="tab-btn active" onclick="switchCustomerTab('overview')">Genel Bakış</button>
+                                        <button class="tab-btn" onclick="switchCustomerTab('purchases')">Alışverişler</button>
+                                        <button class="tab-btn" onclick="switchCustomerTab('notes')">Notlar</button>
+                                        <button class="tab-btn" onclick="switchCustomerTab('reminders')">Hatırlatıcılar</button>
+                                        <button class="tab-btn" onclick="switchCustomerTab('messages')">Mesajlar</button>
+                                    </div>
+
+                                    <div id="tab-overview" class="customer-tab active">
+                                        <div id="customer-overview-stats"></div>
+                                    </div>
+
+                                    <div id="tab-purchases" class="customer-tab" style="display: none;">
+                                        <div id="customer-purchases-list"></div>
+                                    </div>
+
+                                    <div id="tab-notes" class="customer-tab" style="display: none;">
+                                        <button class="btn btn-primary btn-sm" onclick="showAddNoteModal()" style="margin-bottom: 10px;">
+                                            + Yeni Not
+                                        </button>
+                                        <div id="customer-notes-list"></div>
+                                    </div>
+
+                                    <div id="tab-reminders" class="customer-tab" style="display: none;">
+                                        <button class="btn btn-primary btn-sm" onclick="showAddReminderModal()" style="margin-bottom: 10px;">
+                                            + Yeni Hatırlatıcı
+                                        </button>
+                                        <div id="customer-reminders-list"></div>
+                                    </div>
+
+                                    <div id="tab-messages" class="customer-tab" style="display: none;">
+                                        <div id="customer-messages-list"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page with Tabs -->
+                <div class="page" id="settings-page">
+                    <div class="card">
+                        <h2>⚙️ Ayarlar</h2>
+
+                        <!-- Tabs -->
+                        <div style="display: flex; gap: 10px; border-bottom: 2px solid #ddd; margin-bottom: 20px; flex-wrap: wrap;">
+                            <button class="settings-tab active" onclick="switchSettingsTab('general')">🏪 Genel</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('vat')">📊 KDV Oranları</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('shortcuts')">⌨️ Kısayollar</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('receipt')">🧾 Fiş</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('theme')">🎨 Tema & Renkler</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('smtp')">📧 SMTP (Email)</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('templates')">📝 Mesaj Şablonları</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('automation')">🤖 Otomasyon</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('backup')">💾 Yedekleme</button>
+                        </div>
+
+                        <form id="settings-form" onsubmit="saveSettings(event)">
+                            <!-- General Tab -->
+                            <div id="settings-general-tab" class="settings-tab-content active">
+                                <h3>Mağaza Bilgileri</h3>
+                                <div class="form-group">
+                                    <label>Mağaza Adı</label>
+                                    <input type="text" id="settings-store-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Adres</label>
+                                    <textarea id="settings-store-address" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Telefon</label>
+                                    <input type="tel" id="settings-store-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Vergi No</label>
+                                    <input type="text" id="settings-tax-number">
+                                </div>
+
+                                <h3 style="margin-top: 30px;">Stok Ayarları</h3>
+                                <div class="form-group">
+                                    <label>Düşük Stok Uyarı Seviyesi</label>
+                                    <input type="number" id="settings-low-stock" min="1" value="10">
+                                </div>
+
+                                <h3 style="margin-top: 30px;">Para Birimi Ayarları</h3>
+                                <div class="form-group">
+                                    <label>Para Birimi</label>
+                                    <select id="settings-currency">
+                                        <option value="TRY">Türk Lirası (₺)</option>
+                                        <option value="USD">ABD Doları ($)</option>
+                                        <option value="EUR">Euro (€)</option>
+                                        <option value="GBP">İngiliz Sterlini (£)</option>
+                                        <option value="JPY">Japon Yeni (¥)</option>
+                                    </select>
+                                    <small style="color: #666;">Para birimi sembolü otomatik olarak güncellenecektir.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Sayı Formatı</label>
+                                    <select id="settings-number-format">
+                                        <option value="tr">Türkiye Formatı (1.234,56)</option>
+                                        <option value="us">Amerika/İngiltere Formatı (1,234.56)</option>
+                                        <option value="eu">Avrupa Formatı (1.234,56)</option>
+                                        <option value="in">Hindistan Formatı (1,23,456.78)</option>
+                                        <option value="ch">İsviçre Formatı (1'234.56)</option>
+                                    </select>
+                                    <small style="color: #666;">Binlik ve ondalık ayırıcı formatını seçin.</small>
+                                </div>
+                            </div>
+
+                            <!-- VAT Tab -->
+                            <div id="settings-vat-tab" class="settings-tab-content" style="display: none;">
+                                <h3>KDV Oranlarını Özelleştir</h3>
+                                <p style="color: #666; margin-bottom: 20px;">Ürünlerinize uygulayabildiğiniz KDV oranlarını buradan düzenleyebilirsiniz.</p>
+
+                                <div id="vat-rates-list">
+                                    <div class="form-group">
+                                        <label>KDV Oran 1 - Açıklama</label>
+                                        <input type="text" id="vat-name-1" placeholder="Örn: İstisna, Muaf, vb." value="İstisna">
+                                        <label style="margin-top: 10px;">KDV Oran 1 (%)</label>
+                                        <input type="text" inputmode="numeric" id="vat-rate-1" value="0" min="0" max="100"
+                                               pattern="[0-9]+" placeholder="0"
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                               style="background: #ffffcc;">
+                                        <small style="color: #666;">Varsayılan: %0 (İstisna)</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>KDV Oran 2 - Açıklama</label>
+                                        <input type="text" id="vat-name-2" placeholder="Örn: Temel Gıda, Kitap, vb." value="Temel Gıda">
+                                        <label style="margin-top: 10px;">KDV Oran 2 (%)</label>
+                                        <input type="text" inputmode="numeric" id="vat-rate-2" value="1" min="0" max="100"
+                                               pattern="[0-9]+" placeholder="1"
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                               style="background: #ffffcc;">
+                                        <small style="color: #666;">Varsayılan: %1 (Temel Gıda)</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>KDV Oran 3 - Açıklama</label>
+                                        <input type="text" id="vat-name-3" placeholder="Örn: İndirimli, Konut, vb." value="İndirimli">
+                                        <label style="margin-top: 10px;">KDV Oran 3 (%)</label>
+                                        <input type="text" inputmode="numeric" id="vat-rate-3" value="10" min="0" max="100"
+                                               pattern="[0-9]+" placeholder="10"
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                               style="background: #ffffcc;">
+                                        <small style="color: #666;">Varsayılan: %10 (İndirimli)</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>KDV Oran 4 - Açıklama</label>
+                                        <input type="text" id="vat-name-4" placeholder="Örn: Genel, Standart, vb." value="Genel">
+                                        <label style="margin-top: 10px;">KDV Oran 4 (%)</label>
+                                        <input type="text" inputmode="numeric" id="vat-rate-4" value="20" min="0" max="100"
+                                               pattern="[0-9]+" placeholder="20"
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                               style="background: #ffffcc;">
+                                        <small style="color: #666;">Varsayılan: %20 (Genel)</small>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-secondary" onclick="resetVatRatesToDefault()">Varsayılana Sıfırla</button>
+
+                                <div style="background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin-top: 20px;">
+                                    <p style="margin: 0; font-size: 14px;">
+                                        <strong>⚠️ Uyarı:</strong> KDV oranlarını değiştirdiğinizde, ürün eklerken bu yeni oranlar seçeneklerde görünecektir.<br>
+                                        Türkiye'de yasal KDV oranları: %0, %1, %10, %20
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Keyboard Shortcuts Tab -->
+                            <div id="settings-shortcuts-tab" class="settings-tab-content" style="display: none;">
+                                <h3>Klavye Kısayollarını Özelleştir</h3>
+                                <p style="color: #666; margin-bottom: 20px;">Kısayol tuşlarını değiştirmek için kutucuğa tıklayın ve yeni tuşa basın.</p>
+
+                                <div class="form-group">
+                                    <label>Satış Sayfasına Git</label>
+                                    <input type="text" id="shortcut-go-to-sales" value="F1" readonly onclick="captureShortcut(this)" style="cursor: pointer; background: #ffffcc;">
+                                    <small style="color: #666;">Varsayılan: F1</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Yeni Ürün Ekle</label>
+                                    <input type="text" id="shortcut-add-product" value="F2" readonly onclick="captureShortcut(this)" style="cursor: pointer; background: #ffffcc;">
+                                    <small style="color: #666;">Varsayılan: F2</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Yeni Müşteri Ekle</label>
+                                    <input type="text" id="shortcut-add-customer" value="F3" readonly onclick="captureShortcut(this)" style="cursor: pointer; background: #ffffcc;">
+                                    <small style="color: #666;">Varsayılan: F3</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Satışı Tamamla</label>
+                                    <input type="text" id="shortcut-complete-sale" value="F4" readonly onclick="captureShortcut(this)" style="cursor: pointer; background: #ffffcc;">
+                                    <small style="color: #666;">Varsayılan: F4</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Dashboard'u Yenile</label>
+                                    <input type="text" id="shortcut-refresh" value="F5" readonly onclick="captureShortcut(this)" style="cursor: pointer; background: #ffffcc;">
+                                    <small style="color: #666;">Varsayılan: F5</small>
+                                </div>
+
+                                <button type="button" class="btn btn-secondary" onclick="resetShortcutsToDefault()">Varsayılana Sıfırla</button>
+                            </div>
+
+                            <!-- Receipt Tab -->
+                            <div id="settings-receipt-tab" class="settings-tab-content" style="display: none;">
+                                <h3>Fiş/Fatura Ayarları</h3>
+                                <div class="form-group">
+                                    <label>Fiş Alt Bilgi Mesajı</label>
+                                    <textarea id="settings-receipt-footer" rows="3" placeholder="Örn: Bizi tercih ettiğiniz için teşekkürler!"></textarea>
+                                    <small style="color: #666;">Fiş ve faturanın en altında görünecek mesaj</small>
+                                </div>
+
+                                <div style="background: #e7f3ff; padding: 15px; border-radius: 5px; border-left: 4px solid #2196f3; margin-top: 20px;">
+                                    <p style="margin: 0; font-size: 14px;">
+                                        <strong>🧾 Fiş Önizleme:</strong> Satış tamamlandığında otomatik açılır.<br>
+                                        Termal yazıcı (58mm/80mm) ve A4 formatlarını destekler.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Theme & Colors Tab -->
+
+                            <!-- SMTP Settings Tab -->
+                            <div id="settings-smtp-tab" class="settings-tab-content" style="display: none;">
+                                <h3>📧 SMTP Ayarları (Email Gönderimi)</h3>
+                                <p style="color: #666; margin-bottom: 20px;">Email gönderimi için SMTP ayarlarını yapılandırın. Gmail, Outlook veya kendi mail sunucunuzu kullanabilirsiniz.</p>
+
+                                <div class="form-group">
+                                    <label>SMTP Sunucu</label>
+                                    <input type="text" id="settings-smtp-host" placeholder="örn: smtp.gmail.com">
+                                    <small style="color: #666;">Gmail: smtp.gmail.com, Outlook: smtp.office365.com</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Port</label>
+                                    <input type="number" id="settings-smtp-port" placeholder="587">
+                                    <small style="color: #666;">Genellikle 587 (TLS) veya 465 (SSL)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="settings-smtp-secure">
+                                        SSL Kullan (Port 465 için)
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Email Adresi</label>
+                                    <input type="email" id="settings-smtp-user" placeholder="ornek@gmail.com">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Şifre / Uygulama Şifresi</label>
+                                    <input type="password" id="settings-smtp-pass" placeholder="••••••••">
+                                    <small style="color: #666;">Gmail için: Uygulama şifresi oluşturmanız gerekebilir</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Gönderici Adı</label>
+                                    <input type="text" id="settings-smtp-from" placeholder="Mağaza Adı">
+                                </div>
+
+                                <button type="button" class="btn btn-primary" onclick="testSmtpConnection()">
+                                    🧪 Bağlantıyı Test Et
+                                </button>
+                            </div>
+
+                            <!-- Message Templates Tab -->
+                            <div id="settings-templates-tab" class="settings-tab-content" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <h3>📝 Mesaj Şablonları</h3>
+                                    <button type="button" class="btn btn-primary" onclick="showAddTemplateModal()">
+                                        + Yeni Şablon
+                                    </button>
+                                </div>
+
+                                <p style="color: #666; margin-bottom: 20px;">
+                                    Mesaj şablonlarınızı yönetin. Değişkenler: {musteri_adi}, {telefon}, {email}, {toplam_harcama}, {son_alisveris}, {puan}, {indirim_kodu}, {magaza_adi}, {tarih}
+                                </p>
+
+                                <div id="message-templates-list">
+                                    <!-- Şablonlar dinamik olarak yüklenecek -->
+                                </div>
+                            </div>
+
+                            <!-- Automation Tab -->
+                            <div id="settings-automation-tab" class="settings-tab-content" style="display: none;">
+                                <h3>🤖 Otomatik Mesaj Gönderimi</h3>
+                                <p style="color: #666; margin-bottom: 30px;">Belirli durumlarda otomatik olarak mesaj gönderin.</p>
+
+                                <div class="card" style="margin-bottom: 20px; background: #f8f9fa;">
+                                    <h4>🎂 Doğum Günü Mesajları</h4>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="auto-birthday-enabled">
+                                            Doğum günü mesajı gönder
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mesaj Şablonu</label>
+                                        <select id="auto-birthday-template">
+                                            <option value="">Şablon seçin...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gönderim Saati</label>
+                                        <input type="time" id="auto-birthday-time" value="09:00">
+                                    </div>
+                                </div>
+
+                                <div class="card" style="margin-bottom: 20px; background: #f8f9fa;">
+                                    <h4>⚠️ Uzun Süredir Gelmeyenlere Hatırlatma</h4>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="auto-inactive-enabled">
+                                            30 gün alışveriş yapmayanlara hatırlatma gönder
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mesaj Şablonu</label>
+                                        <select id="auto-inactive-template">
+                                            <option value="">Şablon seçin...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="card" style="margin-bottom: 20px; background: #f8f9fa;">
+                                    <h4>👋 Yeni Müşteriye Hoş Geldin Mesajı</h4>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="auto-welcome-enabled">
+                                            Yeni müşterilere hoş geldin mesajı gönder
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mesaj Şablonu</label>
+                                        <select id="auto-welcome-template">
+                                            <option value="">Şablon seçin...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gönderim Zamanı</label>
+                                        <select id="auto-welcome-delay">
+                                            <option value="0">Hemen gönder</option>
+                                            <option value="60">1 saat sonra</option>
+                                            <option value="1440">1 gün sonra</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="card" style="margin-bottom: 20px; background: #f8f9fa;">
+                                    <h4>🙏 Alışveriş Sonrası Teşekkür Mesajı</h4>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="auto-thankyou-enabled">
+                                            Her alışverişten sonra teşekkür mesajı gönder
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mesaj Şablonu</label>
+                                        <select id="auto-thankyou-template">
+                                            <option value="">Şablon seçin...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gönderim Zamanı</label>
+                                        <select id="auto-thankyou-delay">
+                                            <option value="0">Hemen gönder</option>
+                                            <option value="60">1 saat sonra</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" onclick="saveAutomationSettings()">
+                                    💾 Otomasyon Ayarlarını Kaydet
+                                </button>
+                            </div>
+
+                            <!-- Backup Tab -->
+                            <div id="settings-backup-tab" class="settings-tab-content" style="display: none;">
+                                <h3>💾 Yedekleme ve Geri Yükleme</h3>
+                                <p style="color: #666; margin-bottom: 30px;">Verilerinizi yedekleyin ve gerektiğinde geri yükleyin. Yedekler otomatik olarak ZIP formatında kaydedilir.</p>
+
+                                <!-- Yedek Oluştur -->
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; margin-bottom: 30px; color: white;">
+                                    <h4 style="margin: 0 0 15px 0; color: white;">📦 Yeni Yedek Oluştur</h4>
+                                    <p style="margin-bottom: 20px; opacity: 0.9;">Tüm ürünler, satışlar, müşteriler ve ayarlarınız yedeklenir.</p>
+                                    <button type="button" id="create-backup-btn" onclick="createBackup()" class="btn btn-success" style="background: white; color: #667eea; font-weight: bold; padding: 12px 30px;">
+                                        💾 Yedek Oluştur
+                                    </button>
+                                    <div id="backup-status" style="margin-top: 15px;"></div>
+                                </div>
+
+                                <!-- Yedek Listesi -->
+                                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                                    <h4 style="margin: 0 0 15px 0;">📋 Mevcut Yedekler</h4>
+                                    <p style="color: #666; margin-bottom: 15px;">Son 10 yedek otomatik olarak saklanır.</p>
+                                    <div id="backup-list">
+                                        <p style="color: #999;">Yükleniyor...</p>
+                                    </div>
+                                </div>
+
+                                <!-- Harici Yedek Yükle -->
+                                <div style="background: #fff3cd; padding: 25px; border-radius: 15px; border: 2px solid #ffc107;">
+                                    <h4 style="margin: 0 0 15px 0;">📂 Harici Yedek Dosyasını Yükle</h4>
+                                    <p style="color: #856404; margin-bottom: 20px;">Bilgisayarınızdan bir yedek dosyası (.zip) seçip geri yükleyin.</p>
+                                    <button type="button" onclick="selectAndRestoreBackup()" class="btn btn-primary" style="padding: 12px 30px; font-weight: bold;">
+                                        📁 Dosya Seç ve Geri Yükle
+                                    </button>
+                                </div>
+
+                                <!-- Uyarı -->
+                                <div style="background: #fff5f5; padding: 20px; border-radius: 10px; border-left: 4px solid #f56565; margin-top: 30px;">
+                                    <strong style="color: #c53030;">⚠️ Önemli Uyarı:</strong>
+                                    <p style="color: #742a2a; margin: 10px 0 0 0;">Yedek geri yüklendiğinde, mevcut tüm veriler yedeğin içeriğiyle değiştirilecektir. Bu işlem geri alınamaz!</p>
+                                </div>
+                                <!-- Database Reset - Danger Zone -->
+                                <div style="background: #ffe5e5; padding: 25px; border-radius: 15px; border: 2px solid #ff4444; margin-top: 30px;">
+                                    <h4 style="margin: 0 0 15px 0; color: #d00;">🔴 Tehlikeli Bölge</h4>
+                                    <p style="color: #a00; margin-bottom: 20px; font-weight: 500;">Tüm veritabanını sıfırla - Bu işlem GERİ ALINAMAZ!</p>
+                                    <button type="button" onclick="resetDatabase()" class="btn btn-danger" style="padding: 12px 30px; font-weight: bold; background: #d00;">
+                                        🗑️ Tüm Verileri Sıfırla
+                                    </button>
+                                    <p style="color: #a00; margin-top: 15px; font-size: 12px;">Bu işlem tüm ürünleri, satışları, müşterileri ve kampanyaları kalıcı olarak siler!</p>
+                                </div>
+                            </div>
+
+                            <div id="settings-theme-tab" class="settings-tab-content" style="display: none;">
+                                <h3>🎨 Tema & Renk Ayarları</h3>
+
+                                <!-- Dark/Light Mode Toggle -->
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; margin-bottom: 30px; color: white;">
+                                    <h4 style="margin: 0 0 20px 0; color: white;">🌓 Tema Modu</h4>
+                                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                        <button type="button" onclick="setThemeMode('light')" id="theme-light-btn" class="theme-mode-btn" style="flex: 1; min-width: 150px; padding: 20px; background: white; border: 3px solid #667eea; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">☀️</div>
+                                            <div style="font-weight: bold; font-size: 16px; color: #667eea;">LIGHT MODE</div>
+                                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Aydınlık Tema</div>
+                                        </button>
+                                        <button type="button" onclick="setThemeMode('dark')" id="theme-dark-btn" class="theme-mode-btn" style="flex: 1; min-width: 150px; padding: 20px; background: #1a1a1a; border: 3px solid transparent; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                            <div style="font-size: 40px; margin-bottom: 10px;">🌙</div>
+                                            <div style="font-weight: bold; font-size: 16px; color: white;">DARK MODE</div>
+                                            <div style="font-size: 12px; color: #999; margin-top: 5px;">Karanlık Tema</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Color Palette Customization -->
+                                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px;">
+                                    <h4 style="margin: 0 0 20px 0;">🎨 Renk Paleti Özelleştirme</h4>
+
+                                    <div class="grid-2" style="gap: 20px;">
+                                        <!-- Primary Color -->
+                                        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <label style="display: block; font-weight: bold; margin-bottom: 15px;">Ana Renk (Primary)</label>
+                                            <div style="display: flex; align-items: center; gap: 15px;">
+                                                <input type="color" id="color-primary" value="#667eea" style="width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer;">
+                                                <div>
+                                                    <input type="text" id="color-primary-hex" value="#667eea" readonly style="padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 14px; width: 120px;">
+                                                    <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Menü, butonlar, vurgular</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Success Color -->
+                                        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <label style="display: block; font-weight: bold; margin-bottom: 15px;">Başarı Rengi (Success)</label>
+                                            <div style="display: flex; align-items: center; gap: 15px;">
+                                                <input type="color" id="color-success" value="#48bb78" style="width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer;">
+                                                <div>
+                                                    <input type="text" id="color-success-hex" value="#48bb78" readonly style="padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 14px; width: 120px;">
+                                                    <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Onay butonları, başarı</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Danger Color -->
+                                        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <label style="display: block; font-weight: bold; margin-bottom: 15px;">Tehlike Rengi (Danger)</label>
+                                            <div style="display: flex; align-items: center; gap: 15px;">
+                                                <input type="color" id="color-danger" value="#f56565" style="width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer;">
+                                                <div>
+                                                    <input type="text" id="color-danger-hex" value="#f56565" readonly style="padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 14px; width: 120px;">
+                                                    <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Sil, iptal, uyarılar</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Warning Color -->
+                                        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <label style="display: block; font-weight: bold; margin-bottom: 15px;">Uyarı Rengi (Warning)</label>
+                                            <div style="display: flex; align-items: center; gap: 15px;">
+                                                <input type="color" id="color-warning" value="#ffc107" style="width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer;">
+                                                <div>
+                                                    <input type="text" id="color-warning-hex" value="#ffc107" readonly style="padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 14px; width: 120px;">
+                                                    <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Uyarılar, dikkat</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Preset Color Palettes -->
+                                    <div style="margin-top: 30px;">
+                                        <h4 style="margin: 0 0 20px 0;">🎨 Profesyonel Renk Paletleri</h4>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                                            <!-- Ocean Blue -->
+                                            <button type="button" onclick="applyColorPreset('oceanBlue')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #2196F3; border-radius: 12px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">🌊</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Ocean Blue</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Profesyonel mavi tonları</div>
+                                            </button>
+
+                                            <!-- Forest Green -->
+                                            <button type="button" onclick="applyColorPreset('forestGreen')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #4CAF50; border-radius: 12px; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">🌲</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Forest Green</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Doğal ve sakin yeşil</div>
+                                            </button>
+
+                                            <!-- Sunset Purple -->
+                                            <button type="button" onclick="applyColorPreset('sunsetPurple')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #9C27B0; border-radius: 12px; background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">🌅</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Sunset Purple</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Modern mor-pembe</div>
+                                            </button>
+
+                                            <!-- Dark Professional -->
+                                            <button type="button" onclick="applyColorPreset('darkProfessional')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #37474F; border-radius: 12px; background: linear-gradient(135deg, #37474F 0%, #263238 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(55, 71, 79, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">🌑</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Dark Professional</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Koyu profesyonel</div>
+                                            </button>
+
+                                            <!-- Default -->
+                                            <button type="button" onclick="applyColorPreset('default')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #667eea; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">⭐</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Default</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Varsayılan tema</div>
+                                            </button>
+
+                                            <!-- Energetic -->
+                                            <button type="button" onclick="applyColorPreset('energetic')" class="theme-preset-btn" style="padding: 20px; border: 3px solid #FF5722; border-radius: 12px; background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%); color: white; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);">
+                                                <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+                                                <div style="font-size: 16px; margin-bottom: 5px;">Energetic</div>
+                                                <div style="font-size: 11px; opacity: 0.9; font-weight: normal;">Enerjik kırmızı-turuncu</div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reset Button -->
+                                    <div style="margin-top: 30px; text-align: center;">
+                                        <button type="button" onclick="resetThemeToDefault()" style="padding: 12px 30px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                                            🔄 Varsayılan Tema'ya Dön
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Live Preview -->
+                                <div style="background: white; padding: 25px; border-radius: 15px; margin-top: 30px; border: 2px solid #ddd;">
+                                    <h4 style="margin: 0 0 15px 0;">👁️ Canlı Önizleme</h4>
+                                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                        <button type="button" style="padding: 12px 25px; background: var(--color-primary, #667eea); color: white; border: none; border-radius: 8px; font-weight: bold;">Primary Button</button>
+                                        <button type="button" style="padding: 12px 25px; background: var(--color-success, #48bb78); color: white; border: none; border-radius: 8px; font-weight: bold;">Success Button</button>
+                                        <button type="button" style="padding: 12px 25px; background: var(--color-danger, #f56565); color: white; border: none; border-radius: 8px; font-weight: bold;">Danger Button</button>
+                                        <button type="button" style="padding: 12px 25px; background: var(--color-warning, #ffc107); color: white; border: none; border-radius: 8px; font-weight: bold;">Warning Button</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons" style="margin-top: 30px;">
+                                <button type="submit" class="btn btn-success">💾 Tüm Ayarları Kaydet</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h2>Ödeme İşlemi</h2>
+            <div style="margin: 30px 0;">
+                <h3 style="text-align: center; color: #667eea; font-size: 32px; margin-bottom: 20px;" id="payment-total">0.00 ₺</h3>
+
+                <!-- Change Calculation Section (only for Nakit) -->
+                <div id="change-calculation" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="font-size: 16px; font-weight: bold;">Müşteriden Alınan Tutar (₺)</label>
+                        <input type="number" step="0.01" id="received-amount" placeholder="Örn: 100"
+                               style="font-size: 24px; padding: 15px; text-align: center;"
+                               oninput="calculateChange()">
+                    </div>
+                    <div id="change-display" style="display: none; margin-top: 15px; padding: 15px; background: #ffffcc; border: 2px solid #ffcc00; border-radius: 5px;">
+                        <p style="font-size: 14px; margin-bottom: 5px; color: #666;">Para Üstü:</p>
+                        <p style="font-size: 28px; font-weight: bold; color: #28a745; margin: 0;" id="change-amount">0.00 ₺</p>
+                    </div>
+                    <div id="insufficient-warning" style="display: none; margin-top: 15px; padding: 15px; background: #ffe6e6; border: 2px solid #ff4444; border-radius: 5px;">
+                        <p style="font-size: 16px; font-weight: bold; color: #dc3545; margin: 0;">⚠️ Yetersiz tutar!</p>
+                    </div>
+                </div>
+
+                <!-- Payment Method Buttons -->
+                <div id="payment-method-buttons">
+                    <button class="btn btn-success" style="width: 100%; padding: 20px; margin: 10px 0; font-size: 18px;" onclick="showChangeCalculation()">
+                        💵 Nakit
+                    </button>
+
+                    <button class="btn btn-primary" style="width: 100%; padding: 20px; margin: 10px 0; font-size: 18px;" onclick="selectPaymentMethod('Kredi Kartı')">
+                        💳 Kredi Kartı
+                    </button>
+
+                    <button class="btn btn-secondary" style="width: 100%; padding: 20px; margin: 10px 0; font-size: 18px;" onclick="selectPaymentMethod('Havale')">
+                        🏦 Havale
+                    </button>
+                </div>
+
+                <!-- Confirm Cash Payment Button (hidden initially) -->
+                <div id="confirm-cash-payment" style="display: none;">
+                    <button class="btn btn-success" style="width: 100%; padding: 20px; font-size: 18px;" onclick="confirmCashPayment()">
+                        ✅ Nakit Ödemeyi Tamamla
+                    </button>
+                    <button class="btn btn-secondary" style="width: 100%; padding: 15px; margin-top: 10px; font-size: 16px;" onclick="backToPaymentMethods()">
+                        ← Geri
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            <h2 id="product-modal-title">Yeni Ürün Ekle</h2>
+            <form id="product-form" onsubmit="saveProduct(event)">
+                <input type="hidden" id="product-id">
+                <div class="form-group">
+                    <label>Barkod</label>
+                    <input type="text" id="product-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label>Ürün Adı</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Fiyat (₺)</label>
+                    <input type="text" inputmode="decimal" id="product-price" required
+                           placeholder="Örn: 1.234,56"
+                           oninput="this.value = this.value.replace(/[^0-9.,]/g, '')">
+                    <small style="color: #666;">Binler için nokta (.), ondalık için virgül (,) kullanın</small>
+                </div>
+                <div class="form-group">
+                    <label>Stok</label>
+                    <input type="text" inputmode="numeric" id="product-stock" required
+                           pattern="[0-9]+"
+                           placeholder="Örn: 100"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <input type="text" id="product-category">
+                </div>
+                <div class="form-group">
+                    <label>KDV Oranı (%)</label>
+                    <select id="product-vat-rate">
+                        <option value="0">%0 KDV</option>
+                        <option value="1">%1 KDV</option>
+                        <option value="10">%10 KDV</option>
+                        <option value="20" selected>%20 KDV</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeProductModal()">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Select Customer Modal (for POS) -->
+    <div id="select-customer-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>Müşteri Seç</h2>
+            <p style="color: #666; margin-bottom: 15px;">Bu satış için müşteri seçin. Boş bırakırsanız misafir satış olarak kaydedilir.</p>
+
+            <div class="form-group">
+                <input type="text" id="customer-search-modal" placeholder="Müşteri ara..."
+                    oninput="searchCustomersInModal()" style="width: 100%;">
+            </div>
+
+            <div id="customer-list-modal" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px;">
+                <!-- Müşteriler dinamik olarak yüklenecek -->
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="closeModal('select-customer-modal')">İptal</button>
+                <button class="btn btn-primary" onclick="showAddCustomerModal(); closeModal('select-customer-modal')">
+                    + Yeni Müşteri Ekle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div id="customer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCustomerModal()">&times;</span>
+            <h2 id="customer-modal-title">Yeni Müşteri Ekle</h2>
+            <form id="customer-form" onsubmit="saveCustomer(event)">
+                <input type="hidden" id="customer-id">
+                <div class="form-group">
+                    <label>Müşteri Adı *</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="customer-phone">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="customer-email">
+                </div>
+                <div class="form-group">
+                    <label>Adres</label>
+                    <textarea id="customer-address" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Doğum Tarihi</label>
+                    <input type="date" id="customer-birth-date">
+                    <small style="color: #666; display: block; margin-top: 5px;">Doğum günü otomasyonu için kullanılır</small>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">💾 Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCustomerModal()">❌ İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Stock Update Modal -->
+    <div id="stock-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeStockModal()">&times;</span>
+            <h2>Stok Güncelle</h2>
+            <h3 id="stock-product-name" style="color: #667eea; margin: 20px 0;"></h3>
+            <p style="font-size: 16px;">Mevcut Stok: <strong id="stock-current" style="color: #28a745; font-size: 20px;">0</strong></p>
+
+            <!-- Large +/- Buttons with Number Input -->
+            <div style="margin: 30px 0;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 16px;">Eklenecek/Çıkarılacak Miktar</label>
+                <div style="display: flex; align-items: center; gap: 15px; justify-content: center;">
+                    <button onclick="adjustStockAmount(-1)" style="width: 60px; height: 60px; font-size: 32px; font-weight: bold; border: none; background: #dc3545; color: white; border-radius: 10px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.2);">−</button>
+
+                    <input type="number" id="stock-quantity" placeholder="0" value="0" style="width: 150px; font-size: 28px; padding: 15px; text-align: center; border: 3px solid #667eea; border-radius: 10px; font-weight: bold;">
+
+                    <button onclick="adjustStockAmount(1)" style="width: 60px; height: 60px; font-size: 32px; font-weight: bold; border: none; background: #28a745; color: white; border-radius: 10px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.2);">+</button>
+                </div>
+                <small style="color: #666; display: block; text-align: center; margin-top: 10px;">Pozitif değer ekler, negatif değer çıkarır</small>
+            </div>
+
+            <!-- Quick Amount Buttons Grid -->
+            <div style="margin: 30px 0;">
+                <label style="display: block; margin-bottom: 15px; font-weight: bold; font-size: 16px; text-align: center;">Hızlı Miktar Seçimi</label>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 500px; margin: 0 auto;">
+                    <!-- Negative amounts -->
+                    <button onclick="adjustStockAmount(-50)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #dc3545; background: white; color: #dc3545; border-radius: 8px; cursor: pointer; transition: all 0.2s;">-50</button>
+                    <button onclick="adjustStockAmount(-25)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #dc3545; background: white; color: #dc3545; border-radius: 8px; cursor: pointer; transition: all 0.2s;">-25</button>
+                    <button onclick="adjustStockAmount(-10)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #dc3545; background: white; color: #dc3545; border-radius: 8px; cursor: pointer; transition: all 0.2s;">-10</button>
+                    <button onclick="adjustStockAmount(-5)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #dc3545; background: white; color: #dc3545; border-radius: 8px; cursor: pointer; transition: all 0.2s;">-5</button>
+
+                    <!-- Positive amounts -->
+                    <button onclick="adjustStockAmount(5)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #28a745; background: white; color: #28a745; border-radius: 8px; cursor: pointer; transition: all 0.2s;">+5</button>
+                    <button onclick="adjustStockAmount(10)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #28a745; background: white; color: #28a745; border-radius: 8px; cursor: pointer; transition: all 0.2s;">+10</button>
+                    <button onclick="adjustStockAmount(25)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #28a745; background: white; color: #28a745; border-radius: 8px; cursor: pointer; transition: all 0.2s;">+25</button>
+                    <button onclick="adjustStockAmount(50)" style="padding: 12px; font-size: 16px; font-weight: bold; border: 2px solid #28a745; background: white; color: #28a745; border-radius: 8px; cursor: pointer; transition: all 0.2s;">+50</button>
+                </div>
+            </div>
+
+            <!-- Set to Zero Button -->
+            <div style="text-align: center; margin: 20px 0;">
+                <button onclick="setStockAmount(0)" style="padding: 10px 30px; font-size: 14px; border: 2px solid #ffc107; background: white; color: #ffc107; border-radius: 8px; cursor: pointer; font-weight: bold;">Sıfırla (0)</button>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 30px;">
+                <button class="btn btn-success" onclick="confirmStockUpdate()">✅ Güncelle</button>
+                <button class="btn btn-secondary" onclick="closeStockModal()">❌ İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Dialog -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <h2 id="confirm-title" style="margin-bottom: 15px; color: #333;">Emin misiniz?</h2>
+            <p id="confirm-message" style="font-size: 15px; line-height: 1.6; color: #666; white-space: pre-line;">Bu işlemi yapmak istediğinizden emin misiniz?</p>
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button id="confirm-yes" class="btn btn-danger" style="flex: 1; padding: 12px;">✅ Tamam</button>
+                <button id="confirm-no" class="btn btn-secondary" style="flex: 1; padding: 12px;">❌ İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRM Modals -->
+    <!-- Add/Edit Note Modal -->
+    <div class="modal" id="note-modal">
+        <div class="modal-content">
+            <h2 id="note-modal-title">Yeni Not Ekle</h2>
+            <form id="note-form" onsubmit="saveNote(event)">
+                <div class="form-group">
+                    <label>Not</label>
+                    <textarea id="note-text" required rows="4" placeholder="Müşteri hakkında notlar..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">💾 Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('note-modal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Reminder Modal -->
+    <div class="modal" id="reminder-modal">
+        <div class="modal-content">
+            <h2>Yeni Hatırlatıcı Ekle</h2>
+            <form id="reminder-form" onsubmit="saveReminder(event)">
+                <div class="form-group">
+                    <label>Başlık</label>
+                    <input type="text" id="reminder-title" required placeholder="örn: Doğum günü">
+                </div>
+                <div class="form-group">
+                    <label>Tarih</label>
+                    <input type="date" id="reminder-date" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">💾 Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('reminder-modal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Template Modal -->
+    <div class="modal" id="template-modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h2 id="template-modal-title">Yeni Şablon Ekle</h2>
+            <form id="template-form" onsubmit="saveTemplate(event)">
+                <input type="hidden" id="template-id">
+                <div class="form-group">
+                    <label>Şablon Adı</label>
+                    <input type="text" id="template-name" required placeholder="örn: Doğum Günü Mesajı">
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="template-category" required>
+                        <option value="birthday">🎂 Doğum Günü</option>
+                        <option value="discount">🎁 İndirim/Kampanya</option>
+                        <option value="welcome">👋 Hoş Geldiniz</option>
+                        <option value="reminder">⚠️ Hatırlatma</option>
+                        <option value="thankyou">🙏 Teşekkür</option>
+                        <option value="announcement">📢 Duyuru</option>
+                        <option value="custom">✏️ Özel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj Tipi</label>
+                    <select id="template-type" required>
+                        <option value="both">WhatsApp ve Email</option>
+                        <option value="whatsapp">Sadece WhatsApp</option>
+                        <option value="email">Sadece Email</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj İçeriği</label>
+                    <textarea id="template-content" required rows="6" placeholder="Değişkenler: {musteri_adi}, {telefon}, {email}, {toplam_harcama}, {son_alisveris}, {puan}, {indirim_kodu}, {magaza_adi}, {tarih}"></textarea>
+                    <small style="color: #666;">Mesajınızda yukarıdaki değişkenleri kullanabilirsiniz.</small>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="template-active" checked>
+                        Aktif
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">💾 Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('template-modal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send Email Modal -->
+    <div class="modal" id="send-email-modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h2>📧 Email Gönder</h2>
+            <form id="send-email-form" onsubmit="sendEmail(event)">
+                <div class="form-group">
+                    <label>Şablon Seç (Opsiyonel)</label>
+                    <select id="email-template-select" onchange="loadEmailTemplate()">
+                        <option value="">Özel mesaj yaz...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Konu</label>
+                    <input type="text" id="email-subject" required>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj</label>
+                    <textarea id="email-content" required rows="8"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">📧 Gönder</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('send-email-modal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Message Modal -->
+    <div class="modal" id="bulk-message-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <h2>📤 Toplu Mesaj Gönder</h2>
+            <form id="bulk-message-form" onsubmit="sendBulkMessage(event)">
+                <div class="form-group">
+                    <label>Müşteri Seçimi</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label><input type="radio" name="bulk-target" value="all" checked> Tüm müşteriler</label>
+                        <label><input type="radio" name="bulk-target" value="vip"> Sadece VIP müşteriler</label>
+                        <label><input type="radio" name="bulk-target" value="regular"> Sadece Düzenli müşteriler</label>
+                        <label><input type="radio" name="bulk-target" value="risk"> Sadece Risk altındakiler</label>
+                        <label><input type="radio" name="bulk-target" value="new"> Sadece Yeni müşteriler</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj Şablonu</label>
+                    <select id="bulk-template-select" required onchange="loadBulkTemplate()">
+                        <option value="">Şablon seçin...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj Tipi</label>
+                    <select id="bulk-message-type" required>
+                        <option value="both">WhatsApp ve Email</option>
+                        <option value="whatsapp">Sadece WhatsApp</option>
+                        <option value="email">Sadece Email</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj Önizleme</label>
+                    <div id="bulk-message-preview" style="padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; white-space: pre-wrap;">
+                        Şablon seçilmedi...
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="previewBulkMessage()">👁️ Önizle</button>
+                    <button type="submit" class="btn btn-primary">📤 Gönder</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('bulk-message-modal')">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- ========== TIER 1: Core Utilities & Helpers ========== -->
+    <script src="price-formatter.js"></script>
+    <script src="custom-confirm.js"></script>
+    <script src="modal-focus-fix.js"></script>
+    <script src="modal-overlay-fix.js"></script>
+
+    <!-- ========== TIER 2: Main Application Core ========== -->
+    <script src="app.js"></script>
+
+    <!-- ========== TIER 3: System Components ========== -->
+    <script src="vat-calculator.js"></script>
+    <script src="receipt-printer.js"></script>
+    <script src="payment-system.js"></script>
+    <script src="keyboard-shortcuts.js"></script>
+    <script src="quick-search.js"></script>
+    <script src="theme-system.js"></script>
+
+    <!-- ========== TIER 4: Feature Modules ========== -->
+    <script src="settings-tabs.js"></script>
+    <script src="customers-functions.js"></script>
+    <script src="stock-update-fix.js"></script>
+    <script src="stock-modal-new.js"></script>
+    <script src="advanced-reports.js"></script>
+
+    <!-- ========== TIER 5: CRM System (depends on customers-functions) ========== -->
+    <script src="message-templates.js"></script>
+    <script src="automation-system.js"></script>
+    <script src="message-sender.js"></script>
+    <script src="crm-system.js"></script>
+    <script src="pos-customer-selection.js"></script>
+
+    <!-- ========== TIER 6: Enhancements & Optimizations (must be last) ========== -->
+    <script src="table-sorting.js"></script>
+    <script src="optimizations.js"></script>
+</body>
+</html>
